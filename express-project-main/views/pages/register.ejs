@@ -1,0 +1,57 @@
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<h1>Register</h1>
+<%- message %>
+Try accessing <a href="/restricted">/restricted</a>, then authenticate with "tj" and "foobar".
+<form method="post" action="/login">
+    <p>
+        <label>Username:</label>
+        <input type="text" id="username" name="username">
+        <p>
+            <label>E-mail:</label>
+            <input type="text" id="email" name="username">
+        </p>
+    </p>
+    </form>
+    <p>
+        <label>Password:</label>
+        <input type="text" id="password" name="password">
+    </p>
+    <p>
+        <input type="submit" onclick="register()" value="Login">
+    </p>
+</form>
+<script>
+    function register() {
+        const user = {
+            username: $("#username").val(),
+            email: $("#email").val(),
+            password: $("#password").val()
+        }
+
+        console.log(user)
+        $.ajax({
+            url: '/auth/register',
+            type: 'POST',
+            data: user,
+            statusCode: {
+                200: function () {
+                    alert("Registration Successful")
+                    window.location.replace("/competition/create/question")
+                },
+                400: function () {
+                    alert("ERROR.")
+                }
+            },
+            success: function(data) {
+                console.log(data)
+            }
+        });
+
+    }
+</script>
+
+
+<%- include('foot') -%>
