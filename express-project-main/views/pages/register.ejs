@@ -1,10 +1,10 @@
+<%- include('head', { title: 'Authentication Example' }) -%>
+
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
-
 <h1>Register</h1>
 <%- message %>
-Try accessing <a href="/restricted">/restricted</a>, then authenticate with "tj" and "foobar".
 <form method="post" action="/login">
     <p>
         <label>Username:</label>
@@ -17,7 +17,7 @@ Try accessing <a href="/restricted">/restricted</a>, then authenticate with "tj"
     </form>
     <p>
         <label>Password:</label>
-        <input type="text" id="password" name="password">
+        <input type="password" id="password" name="password">
     </p>
     <p>
         <input type="submit" onclick="register()" value="Login">
@@ -37,12 +37,13 @@ Try accessing <a href="/restricted">/restricted</a>, then authenticate with "tj"
             type: 'POST',
             data: user,
             statusCode: {
-                200: function () {
+                200: function (response) {
                     alert("Registration Successful")
-                    window.location.replace("/competition/create/question")
+                    window.location.replace('/auth/login')
                 },
-                400: function () {
-                    alert("ERROR.")
+                400: function (err) {
+                    alert(err.responseText)
+                    console.log(err)
                 }
             },
             success: function(data) {

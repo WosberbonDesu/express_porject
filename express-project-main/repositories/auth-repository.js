@@ -1,24 +1,61 @@
-const AuthUserModel = require('../models/authUser');
 const UserModel = require('../models/user');
 const mongoose = require('mongoose');
+const config = require('../config')
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
-async function authenticate(username, password) {
-    return await AuthUserModel.find({username: username, password: password});
+async function authenticate(req, res) {
+     UserModel.findOne({
+        username: req.body.username
+    })
+        .exec((err, user) => {
+            if (err) {
+                res.status(500).send({ message: err });
+                return;
+            }
+            if (!user) {
+                res.status(404).send({ message: "User Not found." });
+                return;
+            }
+            var passwordIsValid = bcrypt.compareSync(
+                req.body.password,
+                user.password
+            );
+            if (!passwordIsValid) {
+                res.status(401).send({
+                    accessToken: null,
+                    message: "Invalid Password!"
+                });
+                return;
+            }
+            var token = jwt.sign({ id: user.id }, config.JWT_SECRET_KEY, {
+                expiresIn: 86400 // 1 day
+            });
+            res.status(200).send({
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                accessToken: token,
+                responseText: "Login Successful."
+            });
+        });
 }
 
-async function register(username, password, email) {
+async function register(user) {
+
     const ObjectId = mongoose.Types.ObjectId();
     const userObject = {
         _id: ObjectId,
         id: ObjectId.toString(),
-        username: username,
-        password: password,
-        email: email,
+        username: user.username,
+        password: user.password,
+        email: user.email,
         recordTime: {
             createdAt: Date.now(),
             updatedAt: Date.now()
         }
     };
+
     return await UserModel.create(userObject);
 }
 

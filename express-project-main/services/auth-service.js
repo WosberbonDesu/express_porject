@@ -1,26 +1,18 @@
 const AuthRepository = require('../repositories/auth-repository');
-const Exceptions = require('../exceptions/exceptions');
+const bcrypt = require("bcryptjs");
 
-async function authenticate(req) {
-    const username = req.body.username
-    const password = req.body.password
-    const response = await AuthRepository.authenticate(username, password);
-
-    if (response) return response;
-
-    throw Exceptions.forbidden;
+async function authenticate(req, res) {
+    await AuthRepository.authenticate(req, res);
 }
 
 async function register(req) {
-    console.log(req.body)
-    const username = req.body.username
-    const email = req.body.email
-    const password = req.body.password
-    const response = await AuthRepository.register(username, password, email);
+    const user = {
+        username: req.body.username,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, 8)
+    }
+   await AuthRepository.register(user);
 
-    if (response) return response;
-
-    throw Exceptions.failedRegisteration;
 }
 
 module.exports = {

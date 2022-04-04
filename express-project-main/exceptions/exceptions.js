@@ -11,6 +11,16 @@ module.exports =  {
     code: 403,
     statusCode: 40001
   }),
+  userAlreadyExists: new Exception({
+    message: 'User already exists.',
+    code: 403,
+    statusCode: 40003
+  }),
+  failedLogin: new Exception({
+    message: 'Wrong username or password.',
+    code: 401,
+    statusCode: 40002
+  }),
   failedRegisteration: new Exception({
     message: 'Registeration failed.',
     code: 500,

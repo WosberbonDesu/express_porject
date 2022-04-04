@@ -3,20 +3,42 @@
 
 <h1>Login</h1>
 <%- message %>
-Try accessing <a href="/restricted">/restricted</a>, then authenticate with "tj" and "foobar".
 <form method="post" action="/login">
     <p>
         <label>Username:</label>
-        <input type="text" name="username">
+        <input type="text" id="username" name="username">
     </p>
     </form>
     <p>
         <label>Password:</label>
-        <input type="text" name="password">
+        <input type="password" id="password" name="password">
     </p>
     <p>
-        <input type="submit" value="Login">
+        <input type="submit" value="Login" onclick="login()">
     </p>
 </form>
 
-<%- include('foot') -%>
+<script>
+    function login() {
+        const user = {
+            username: $("#username").val(),
+            password: $("#password").val()
+        }
+
+        console.log(user)
+        $.ajax({
+            url: '/auth/login',
+            type: 'POST',
+            data: user,
+            success: function(data) {
+                console.log(data)
+                alert(data.responseText)
+            },
+            error: function (err) {
+                console.log(err)
+                alert(err.responseText)
+            }
+        });
+
+    }
+</script>

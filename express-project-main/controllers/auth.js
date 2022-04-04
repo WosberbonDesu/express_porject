@@ -1,49 +1,61 @@
-var express = require('express');
-var router = express.Router();
-const authMiddleware = require('../helpers/auth-middleware');
+const express = require('express');
+const router = express.Router();
 const AuthService = require('../services/auth-service');
-const config = require('../config')
-
+const { verifySignUp } = require("../helpers");
+const Exceptions = require('../exceptions/exceptions');
 
 router.get('/login', loginPage);
 router.get('/register', registerPage);
 router.post('/register', register);
 router.post('/login', login);
-router.get('/logout', authMiddleware, logout);
+router.get('/logout', logout);
 
-function loginPage (req, res, next) {
-  res.render('pages/login',
-   {error: undefined,
-    message: "test"});
-}
-
-function registerPage (req, res, next) {
-  res.render('pages/register',
-   {error: undefined,
-    message: "test"});
-}
-
-async function login (req, res, next) {
+function loginPage (req, res) {
   try {
-    await AuthService.authenticate(req)
-    res.redirect('/')
+    res.render('pages/login',
+        {
+          error: undefined,
+          message: "test"
+        });
   } catch(err) {
     console.log(err)
-    res.render('auth/login', {error: JSON.parse(err.response.body).error.message})
+    res.status(400).send(err)
   }
 }
 
-async function register (req, res, next) {
+function registerPage (req, res) {
   try {
-    console.log(req.body)
-    await AuthService.register(req)
+    res.render('pages/register',
+        {
+          error: undefined,
+          message: "Welcome!"
+        });
   } catch(err) {
     console.log(err)
-    res.render('auth/login', {error: JSON.parse(err.response.body).error.message})
+    res.status(400).send(err)
   }
 }
 
-function logout (req, res, next) {
+async function login (req, res) {
+  try {
+    await AuthService.authenticate(req, res)
+  } catch(err) {
+    console.log(err)
+    throw Exceptions.failedLogin
+  }
+}
+
+async function register (req, res) {
+  try {
+   verifySignUp.checkDuplicateUsernameOrEmail(req, res)
+
+  } catch(err) {
+    console.log(err)
+    throw Exceptions.failedRegisteration
+  }
+}
+
+function logout (req, res) {
   req.session.destroy(function (err) {
     if (!err) {
       res.redirect('/');
